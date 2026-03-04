@@ -404,6 +404,7 @@ module BodyBottom () {
 
             // Add here cut outs
 
+            BodyNutHoles();
             if (ShowBottomMountingHoles)
             {
                 translate([BottomMountingHoles_X_Distance/2+BottomMountingHolesOffset_X,BottomMountingHoles_y_Distance/2+BottomMountingHolesOffset_Y,-0.01])cylinder(h=BottomTopThickness+0.02,d=BottomMountingHolesDiameter,center = false);
@@ -500,6 +501,7 @@ module BodyTop () {
                 mirror([  0,  1,  0]) BodyQuarterTop(Caselength,CaseWidth,CutFromTop,CaseRoundingRadius,SideWallThickness);
                 mirror([  1,  0  ,0]) BodyQuarterTop(Caselength,CaseWidth,CutFromTop,CaseRoundingRadius,SideWallThickness);
             }
+            TopScrewHoles();
             if (SeeGrooveRidgeScrew)
             {
                 color("red") translate([-Caselength+CaseRoundingRadius,0,(CaseHeight+0.1)/2-0.05]) cube([Caselength+0.1,CaseWidth+0.1,CaseHeight+0.1],center=true);
@@ -796,6 +798,56 @@ module GasketQuarter () {
 }
 
 
+// Cuts one screw hole shape in the lid at the current position
+module TopScrewHoleCut() {
+    if (ScrewHeadType == 1)
+        ScrewCut(MetricScrewSize, CutFromTop+0.01, 0);
+    if (ScrewHeadType == 2) {
+        translate([0,0,-0.01]) cylinder(h=CutFromTop+0.02, d=ScrewHoleDia, center=false);
+        translate([0,0,-0.01]) cylinder(h=ScrewHeadHeight+0.02, d=ScrewHeadDiameter, center=false);
+    }
+    if (ScrewHeadType == 3)
+        translate([0,0,-0.01]) cylinder(h=CutFromTop+0.02, d=ScrewHoleDia, center=false);
+}
+
+// Places lid screw holes at all four corners and optional mid-side positions
+module TopScrewHoles() {
+    for (sx = [-1, 1], sy = [-1, 1])
+        translate([sx*ScrewCornerPos[0], sy*ScrewCornerPos[1], 0]) TopScrewHoleCut();
+    if (XAdditionalScrew)
+        for (sy = [-1, 1])
+            translate([0, sy*ScrewCornerPos[1], 0]) TopScrewHoleCut();
+    if (YAdditionalScrew)
+        for (sx = [-1, 1])
+            translate([sx*ScrewCornerPos[0], 0, 0]) TopScrewHoleCut();
+}
+
+// Cuts one nut pocket at the current position; nut_rot rotates square nut slots
+module NutHoleCut(nut_rot=0) {
+    H = CaseHeight - CutFromTop;
+    if (NutStyle == 1)
+        translate([0,0,H-HoleDeepness+0.01]) cylinder(h=HoleDeepness, d=HoleDiaThread, center=false);
+    if (NutStyle == 2)
+        translate([0,0,H+0.01]) NutCut(H, NutHigh, NutDia);
+    if (NutStyle == 3)
+        translate([0,0,H+0.01]) rotate([0,0,nut_rot]) SquareNutCut(H, SquareNutHigh, SquareNutSize, 1);
+    if (NutStyle == 4)
+        translate([0,0,H+0.01]) rotate([0,0,nut_rot]) SquareNutCut(H, SquareNutHigh, SquareNutSize, 0);
+}
+
+// Places nut pockets at all four corners and optional mid-side positions
+module BodyNutHoles() {
+    corner_rot = (NutStyle == 4 && !EdgeSquareNutInsertFrom_X) ? 90 : 0;
+    for (sx = [-1, 1], sy = [-1, 1])
+        translate([sx*ScrewCornerPos[0], sy*ScrewCornerPos[1], 0]) NutHoleCut(corner_rot);
+    if (XAdditionalScrew)
+        for (sy = [-1, 1])
+            translate([0, sy*ScrewCornerPos[1], 0]) NutHoleCut(90);
+    if (YAdditionalScrew)
+        for (sx = [-1, 1])
+            translate([sx*ScrewCornerPos[0], 0, 0]) NutHoleCut(0);
+}
+
 module BodyQuarterBottom (Caselength,CaseWidth,CutFromTop,CaseRoundingRadius,SideWallThickness) {
     difference(){
         union(){
@@ -819,30 +871,6 @@ module BodyQuarterBottom (Caselength,CaseWidth,CutFromTop,CaseRoundingRadius,Sid
             }
             else { translate([Caselength/2-OuterBorder-GrooveWidth/2-0.01,-0.01,CutFromTop+0.01])  translate([0,0,0]) rotate([0,0,90]) RidgeStraight(CaseWidth/2-2*CaseRoundingRadius-ScrewHoleDia/2+0.05);}
         }
-        if(NutStyle == 1)
-        {translate(ScrewCornerPos) translate([0,0,CutFromTop-HoleDeepness+0.01]) cylinder(h=HoleDeepness ,d=HoleDiaThread,center = false);}
-        if(NutStyle == 2) {translate(ScrewCornerPos) translate([0,0,CutFromTop+0.01]) NutCut(CutFromTop,NutHigh,NutDia);}
-        if(NutStyle == 3) {translate(ScrewCornerPos) translate([0,0,CutFromTop+0.01]) SquareNutCut(CutFromTop,SquareNutHigh,SquareNutSize,1);}
-        if(NutStyle == 4)
-        {
-            if (EdgeSquareNutInsertFrom_X) {translate(ScrewCornerPos) translate([0,0,CutFromTop+0.01]) rotate([0,0, 0]) SquareNutCut(CutFromTop,SquareNutHigh,SquareNutSize,0);}
-            else                           {translate(ScrewCornerPos) translate([0,0,CutFromTop+0.01]) rotate([0,0,90]) SquareNutCut(CutFromTop,SquareNutHigh,SquareNutSize,0);}
-        }
-
-        if (XAdditionalScrew){
-            if (NutStyle ==1){translate(ScrewAddXPos) translate([0,0,CutFromTop-HoleDeepness+0.01]) cylinder(h=HoleDeepness ,d=HoleDiaThread,center = false);}
-            if (NutStyle ==2){translate(ScrewAddXPos) translate([0,0,CutFromTop+0.01]) NutCut(CutFromTop,NutHigh,NutDia);}
-            if(NutStyle == 3) {translate(ScrewAddXPos) translate([0,0,CutFromTop+0.01]) rotate([0,0,90]) SquareNutCut(CutFromTop,SquareNutHigh,SquareNutSize,1);}
-            if(NutStyle == 4) {translate(ScrewAddXPos) translate([0,0,CutFromTop+0.01]) rotate([0,0,90]) SquareNutCut(CutFromTop,SquareNutHigh,SquareNutSize,0);}
-
-        }
-        if (YAdditionalScrew){
-            if (NutStyle ==1){translate(ScrewAddYPos) translate([0,0,CutFromTop-HoleDeepness+0.01]) cylinder(h=HoleDeepness ,d=HoleDiaThread,center = false);}
-            if (NutStyle ==2){translate(ScrewAddYPos) translate([0,0,CutFromTop+0.01]) NutCut(CutFromTop,NutHigh,NutDia);}
-            if(NutStyle == 3) {translate(ScrewAddYPos) translate([0,0,CutFromTop+0.01]) SquareNutCut(CutFromTop,SquareNutHigh,SquareNutSize,1);}
-            if(NutStyle == 4) {translate(ScrewAddYPos) translate([0,0,CutFromTop+0.01]) SquareNutCut(CutFromTop,SquareNutHigh,SquareNutSize,0);}
-
-        }
     }
 }
 
@@ -853,42 +881,6 @@ module BodyQuarterTop (Caselength,CaseWidth,CutFromTop,CaseRoundingRadius,SideWa
         union(){
             color("DarkCyan")BodyQuarter(Caselength,CaseWidth,CutFromTop,CaseRoundingRadius,SideWallThickness);
         }
-        if (ScrewHeadType == 1)
-        {
-            translate(ScrewCornerPos) ScrewCut(MetricScrewSize,CutFromTop+0.01,0);
-            if (XAdditionalScrew){
-                translate(ScrewAddXPos) ScrewCut(MetricScrewSize,CutFromTop+0.01,0);
-            }
-            if (YAdditionalScrew){
-                translate(ScrewAddYPos) ScrewCut(MetricScrewSize,CutFromTop+0.01,0);
-            }
-        }
-        if (ScrewHeadType == 2)
-        {
-            translate(ScrewCornerPos) translate([0,0,-0.01]) cylinder(h=CutFromTop+0.02,d=ScrewHoleDia ,center = false);
-            translate(ScrewCornerPos) translate([0,0,-0.01]) cylinder(h=ScrewHeadHeight+0.02,d=ScrewHeadDiameter ,center = false);
-            //ScrewCut(MetricScrewSize,CutFromTop+0.01,0);
-            if (XAdditionalScrew){
-                translate(ScrewAddXPos)  translate([0,0,-0.01]) cylinder(h=CutFromTop+0.02,d=ScrewHoleDia ,center = false);
-                translate(ScrewAddXPos)  translate([0,0,-0.01]) cylinder(h=ScrewHeadHeight+0.02,d=ScrewHeadDiameter ,center = false);
-            }
-            if (YAdditionalScrew){
-                translate(ScrewAddYPos)  translate([0,0,-0.01]) cylinder(h=CutFromTop+0.02,d=ScrewHoleDia ,center = false);
-                translate(ScrewAddYPos)  translate([0,0,-0.01]) cylinder(h=ScrewHeadHeight+0.02,d=ScrewHeadDiameter ,center = false);
-            }
-        }
-        if (ScrewHeadType == 3)
-        {
-            translate(ScrewCornerPos) translate([0,0,-0.01]) cylinder(h=CutFromTop+0.02,d=ScrewHoleDia ,center = false);
-            //ScrewCut(MetricScrewSize,CutFromTop+0.01,0);
-            if (XAdditionalScrew){
-                translate(ScrewAddXPos)  translate([0,0,-0.01]) cylinder(h=CutFromTop+0.02,d=ScrewHoleDia ,center = false);
-            }
-            if (YAdditionalScrew){
-                translate(ScrewAddYPos)  translate([0,0,-0.01]) cylinder(h=CutFromTop+0.02,d=ScrewHoleDia ,center = false);
-            }
-        }
-
         translate([CaseRoundingRadius+ScrewHoleDia/2-0.01,CaseWidth/2-OuterBorder-GrooveWidth/2-0.01,CutFromTop+0.01])  translate([0,0,0]) rotate([0,0,0]) GrooveStraight(Caselength/2-3*CaseRoundingRadius-ScrewHoleDia+0.03);
         translate([Caselength/2-OuterBorder-GrooveWidth/2-0.01,CaseRoundingRadius+ScrewHoleDia/2-0.02,CutFromTop+0.01])  translate([0,0,0]) rotate([0,0,90]) GrooveStraight(CaseWidth/2-3*CaseRoundingRadius-ScrewHoleDia+0.04);
         translate([0,0,CutFromTop+0.01]) translate(ScrewCornerPos) rotate([0,0,180]) GrooveCurved(90,ScrewHoleDia/2+OuterBorder+GrooveWidth/2);
