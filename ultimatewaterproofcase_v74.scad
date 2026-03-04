@@ -420,73 +420,19 @@ module BodyBottom () {
                 color("red") translate([0,+CaseWidth/2-CaseWidth*2+CaseRoundingRadius,(CaseHeight+0.1)/2-0.05])   cube([Caselength+0.1,CaseWidth*2+0.1,CaseHeight+0.1],center=true);
             }
 
-            if (ShowSideWallHoles_A)
-            {
-                if (CountOfSideWallHoles_A==1)
-                {    translate([Caselength/2-SideWallThickness/2,SideWallHolePosition_A,SideWallHoleOffset_Z_A+ BottomTopThickness+(CaseHeight-CutFromTop-BottomTopThickness)/2 ]) rotate([90,0,90]) cylinder(h=SideWallThickness+0.04,d=SideWallHoleDiameter_A,center = true);}
-                if (CountOfSideWallHoles_A==2)
-                {
-                    translate([Caselength/2-SideWallThickness/2, SideWallHoleDistance_A/2+SideWallHolePosition_A,SideWallHoleOffset_Z_A+ BottomTopThickness+(CaseHeight-CutFromTop-BottomTopThickness)/2 ]) rotate([90,0,90]) cylinder(h=SideWallThickness+0.04,d=SideWallHoleDiameter_A,center = true);
-                    translate([Caselength/2-SideWallThickness/2,-SideWallHoleDistance_A/2+SideWallHolePosition_A,SideWallHoleOffset_Z_A+ BottomTopThickness+(CaseHeight-CutFromTop-BottomTopThickness)/2 ]) rotate([90,0,90]) cylinder(h=SideWallThickness+0.04,d=SideWallHoleDiameter_A,center = true);
-                }
-                if (CountOfSideWallHoles_A==3)
-                {
-                    translate([Caselength/2-SideWallThickness/2,SideWallHolePosition_A,SideWallHoleOffset_Z_A+ BottomTopThickness+(CaseHeight-CutFromTop-BottomTopThickness)/2 ]) rotate([90,0,90]) cylinder(h=SideWallThickness+0.04,d=SideWallHoleDiameter_A,center = true);
-                    translate([Caselength/2-SideWallThickness/2, SideWallHoleDistance_A+SideWallHolePosition_A,SideWallHoleOffset_Z_A+ BottomTopThickness+(CaseHeight-CutFromTop-BottomTopThickness)/2 ]) rotate([90,0,90]) cylinder(h=SideWallThickness+0.04,d=SideWallHoleDiameter_A,center = true);
-                    translate([Caselength/2-SideWallThickness/2,-SideWallHoleDistance_A+SideWallHolePosition_A,SideWallHoleOffset_Z_A+ BottomTopThickness+(CaseHeight-CutFromTop-BottomTopThickness)/2 ]) rotate([90,0,90]) cylinder(h=SideWallThickness+0.04,d=SideWallHoleDiameter_A,center = true);
-                }
-            }
-
-            if (ShowSideWallHoles_B)
-            {
-                if (CountOfSideWallHoles_B==1)
-                {    translate([SideWallHolePosition_B,-CaseWidth/2+SideWallThickness/2,SideWallHoleOffset_Z_B+ BottomTopThickness+(CaseHeight-CutFromTop-BottomTopThickness)/2 ]) rotate([90,0,0]) cylinder(h=SideWallThickness+0.04,d=SideWallHoleDiameter_B,center = true);}
-                if (CountOfSideWallHoles_B==2)
-                {
-                    translate([SideWallHoleDistance_B/2+SideWallHolePosition_B,-CaseWidth/2+SideWallThickness/2, SideWallHoleOffset_Z_B+ BottomTopThickness+(CaseHeight-CutFromTop-BottomTopThickness)/2 ]) rotate([90,0,0]) cylinder(h=SideWallThickness+0.04,d=SideWallHoleDiameter_B,center = true);
-                    translate([-SideWallHoleDistance_B/2+SideWallHolePosition_B,-CaseWidth/2+SideWallThickness/2, SideWallHoleOffset_Z_B+ BottomTopThickness+(CaseHeight-CutFromTop-BottomTopThickness)/2 ]) rotate([90,0,0]) cylinder(h=SideWallThickness+0.04,d=SideWallHoleDiameter_B,center = true);
-                }
-                if (CountOfSideWallHoles_B==3)
-                {
-                    translate([SideWallHolePosition_B,-CaseWidth/2+SideWallThickness/2, SideWallHoleOffset_Z_B+ BottomTopThickness+(CaseHeight-CutFromTop-BottomTopThickness)/2 ]) rotate([90,0,0]) cylinder(h=SideWallThickness+0.04,d=SideWallHoleDiameter_B,center = true);
-                    translate([SideWallHoleDistance_B+SideWallHolePosition_B,-CaseWidth/2+SideWallThickness/2, SideWallHoleOffset_Z_B+ BottomTopThickness+(CaseHeight-CutFromTop-BottomTopThickness)/2 ]) rotate([90,0,0]) cylinder(h=SideWallThickness+0.04,d=SideWallHoleDiameter_B,center = true);
-                    translate([-SideWallHoleDistance_B+SideWallHolePosition_B,-CaseWidth/2+SideWallThickness/2,SideWallHoleOffset_Z_B+ BottomTopThickness+(CaseHeight-CutFromTop-BottomTopThickness)/2 ]) rotate([90,0,0]) cylinder(h=SideWallThickness+0.04,d=SideWallHoleDiameter_B,center = true);
-                }
-            }
-
-            if (ShowSideWallHoles_C)
-            {
-                if (CountOfSideWallHoles_C==1)
-                {    translate([-Caselength/2+SideWallThickness/2,SideWallHolePosition_C,SideWallHoleOffset_Z_C+ BottomTopThickness+(CaseHeight-CutFromTop-BottomTopThickness)/2 ]) rotate([90,0,90]) cylinder(h=SideWallThickness+0.04,d=SideWallHoleDiameter_C,center = true);}
-                if (CountOfSideWallHoles_C==2)
-                {
-                    translate([-Caselength/2+SideWallThickness/2, SideWallHoleDistance_C/2+SideWallHolePosition_C,SideWallHoleOffset_Z_C+ BottomTopThickness+(CaseHeight-CutFromTop-BottomTopThickness)/2 ]) rotate([90,0,90]) cylinder(h=SideWallThickness+0.04,d=SideWallHoleDiameter_C,center = true);
-                    translate([-Caselength/2+SideWallThickness/2,-SideWallHoleDistance_C/2+SideWallHolePosition_C,SideWallHoleOffset_Z_C+ BottomTopThickness+(CaseHeight-CutFromTop-BottomTopThickness)/2 ]) rotate([90,0,90]) cylinder(h=SideWallThickness+0.04,d=SideWallHoleDiameter_C,center = true);
-                }
-                if (CountOfSideWallHoles_C==3)
-                {
-                    translate([-Caselength/2+SideWallThickness/2, SideWallHolePosition_C,SideWallHoleOffset_Z_C+ BottomTopThickness+(CaseHeight-CutFromTop-BottomTopThickness)/2 ]) rotate([90,0,90]) cylinder(h=SideWallThickness+0.04,d=SideWallHoleDiameter_C,center = true);
-                    translate([-Caselength/2+SideWallThickness/2, SideWallHoleDistance_C+SideWallHolePosition_C,SideWallHoleOffset_Z_C+ BottomTopThickness+(CaseHeight-CutFromTop-BottomTopThickness)/2 ]) rotate([90,0,90]) cylinder(h=SideWallThickness+0.04,d=SideWallHoleDiameter_C,center = true);
-                    translate([-Caselength/2+SideWallThickness/2,-SideWallHoleDistance_C+SideWallHolePosition_C,SideWallHoleOffset_Z_C+ BottomTopThickness+(CaseHeight-CutFromTop-BottomTopThickness)/2 ]) rotate([90,0,90]) cylinder(h=SideWallThickness+0.04,d=SideWallHoleDiameter_C,center = true);
-                }
-            }
-
-            if (ShowSideWallHoles_D)
-            {
-                if (CountOfSideWallHoles_D==1)
-                {    translate([SideWallHolePosition_D,CaseWidth/2-SideWallThickness/2,SideWallHoleOffset_Z_D+ BottomTopThickness+(CaseHeight-CutFromTop-BottomTopThickness)/2 ]) rotate([90,0,0]) cylinder(h=SideWallThickness+0.04,d=SideWallHoleDiameter_D,center = true);}
-                if (CountOfSideWallHoles_D==2)
-                {
-                    translate([SideWallHoleDistance_D/2+SideWallHolePosition_D,CaseWidth/2-SideWallThickness/2, SideWallHoleOffset_Z_D+ BottomTopThickness+(CaseHeight-CutFromTop-BottomTopThickness)/2 ]) rotate([90,0,0]) cylinder(h=SideWallThickness+0.04,d=SideWallHoleDiameter_D,center = true);
-                    translate([-SideWallHoleDistance_D/2+SideWallHolePosition_D,CaseWidth/2-SideWallThickness/2, SideWallHoleOffset_Z_D+ BottomTopThickness+(CaseHeight-CutFromTop-BottomTopThickness)/2 ]) rotate([90,0,0]) cylinder(h=SideWallThickness+0.04,d=SideWallHoleDiameter_D,center = true);
-                }
-                if (CountOfSideWallHoles_D==3)
-                {
-                    translate([SideWallHolePosition_D,CaseWidth/2-SideWallThickness/2, SideWallHoleOffset_Z_D+ BottomTopThickness+(CaseHeight-CutFromTop-BottomTopThickness)/2 ]) rotate([90,0,0]) cylinder(h=SideWallThickness+0.04,d=SideWallHoleDiameter_D,center = true);
-                    translate([SideWallHoleDistance_D+SideWallHolePosition_D,CaseWidth/2-SideWallThickness/2, SideWallHoleOffset_Z_D+ BottomTopThickness+(CaseHeight-CutFromTop-BottomTopThickness)/2 ]) rotate([90,0,0]) cylinder(h=SideWallThickness+0.04,d=SideWallHoleDiameter_D,center = true);
-                    translate([-SideWallHoleDistance_D+SideWallHolePosition_D,CaseWidth/2-SideWallThickness/2,SideWallHoleOffset_Z_D+ BottomTopThickness+(CaseHeight-CutFromTop-BottomTopThickness)/2 ]) rotate([90,0,0]) cylinder(h=SideWallThickness+0.04,d=SideWallHoleDiameter_D,center = true);
-                }
-            }
+            // A=+X wall (spread Y), B=-Y wall (spread X), C=-X wall (spread Y), D=+Y wall (spread X)
+            SideWallHoleSet(ShowSideWallHoles_A, CountOfSideWallHoles_A, SideWallHoleDiameter_A,
+                SideWallHoleOffset_Z_A, SideWallHoleDistance_A, SideWallHolePosition_A,
+                [ Caselength/2-SideWallThickness/2, 0], [0,1], [90,0,90]);
+            SideWallHoleSet(ShowSideWallHoles_B, CountOfSideWallHoles_B, SideWallHoleDiameter_B,
+                SideWallHoleOffset_Z_B, SideWallHoleDistance_B, SideWallHolePosition_B,
+                [0, -CaseWidth/2+SideWallThickness/2], [1,0], [90,0,0]);
+            SideWallHoleSet(ShowSideWallHoles_C, CountOfSideWallHoles_C, SideWallHoleDiameter_C,
+                SideWallHoleOffset_Z_C, SideWallHoleDistance_C, SideWallHolePosition_C,
+                [-Caselength/2+SideWallThickness/2, 0], [0,1], [90,0,90]);
+            SideWallHoleSet(ShowSideWallHoles_D, CountOfSideWallHoles_D, SideWallHoleDiameter_D,
+                SideWallHoleOffset_Z_D, SideWallHoleDistance_D, SideWallHolePosition_D,
+                [0,  CaseWidth/2-SideWallThickness/2], [1,0], [90,0,0]);
         }
     }
 }
@@ -846,6 +792,23 @@ module BodyNutHoles() {
     if (YAdditionalScrew)
         for (sx = [-1, 1])
             translate([sx*ScrewCornerPos[0], 0, 0]) NutHoleCut(0);
+}
+
+// Cuts holes through one side wall.
+// wall_xy : [x,y] of the wall centre — the perpendicular axis is fixed, the other is 0.
+// along   : [ax,ay] unit vector along the wall (the axis holes are spread on).
+// rot     : cylinder rotation — [90,0,90] for X-normal walls, [90,0,0] for Y-normal walls.
+// count=1 → one hole at position; count=2 → ±distance/2; count=3 → 0, ±distance.
+module SideWallHoleSet(show, count, dia, offset_z, distance, position, wall_xy, along, rot) {
+    z = offset_z + BottomTopThickness + (CaseHeight - CutFromTop - BottomTopThickness) / 2;
+    offsets = count == 1 ? [0] :
+              count == 2 ? [-distance/2, distance/2] :
+                           [-distance, 0, distance];
+    if (show)
+        for (o = offsets)
+            translate([wall_xy[0] + along[0]*(position+o),
+                       wall_xy[1] + along[1]*(position+o), z])
+                rotate(rot) cylinder(h=SideWallThickness+0.04, d=dia, center=true);
 }
 
 module BodyQuarterBottom (Caselength,CaseWidth,BodyHeight,CaseRoundingRadius,SideWallThickness) {
