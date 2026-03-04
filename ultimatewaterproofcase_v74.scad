@@ -379,27 +379,9 @@ module BodyBottom () {
                     else
                     {translate([0,CaseWidth/2,0]) MountHolder(MountHolderThickness,MountHolderHoleDiameter);}
                 }
-                if (ShowDeviceHolder1)
-                {
-                    translate([ DeviceHolder_X_Distance1/2+Offset_X_1, DeviceHolder_y_Distance1/2+Offset_Y_1,-0.01]) DeviceHolder("LightSalmon",ScrewCylinderHeight1,ScrewCylinderDiameter1,ScrewHoleDiameter1);
-                    translate([-DeviceHolder_X_Distance1/2+Offset_X_1,-DeviceHolder_y_Distance1/2+Offset_Y_1,-0.01]) DeviceHolder("LightSalmon",ScrewCylinderHeight1,ScrewCylinderDiameter1,ScrewHoleDiameter1);
-                    translate([ DeviceHolder_X_Distance1/2+Offset_X_1,-DeviceHolder_y_Distance1/2+Offset_Y_1,-0.01]) DeviceHolder("LightSalmon",ScrewCylinderHeight1,ScrewCylinderDiameter1,ScrewHoleDiameter1);
-                    translate([-DeviceHolder_X_Distance1/2+Offset_X_1, DeviceHolder_y_Distance1/2+Offset_Y_1,-0.01]) DeviceHolder("LightSalmon",ScrewCylinderHeight1,ScrewCylinderDiameter1,ScrewHoleDiameter1);
-                }
-                if (ShowDeviceHolder2)
-                {
-                    translate([ DeviceHolder_X_Distance2/2+Offset_X_2, DeviceHolder_y_Distance2/2+Offset_Y_2,-0.01]) DeviceHolder("Khaki",ScrewCylinderHeight2,ScrewCylinderDiameter2,ScrewHoleDiameter2);
-                    translate([-DeviceHolder_X_Distance2/2+Offset_X_2,-DeviceHolder_y_Distance2/2+Offset_Y_2,-0.01]) DeviceHolder("Khaki",ScrewCylinderHeight2,ScrewCylinderDiameter2,ScrewHoleDiameter2);
-                    translate([ DeviceHolder_X_Distance2/2+Offset_X_2,-DeviceHolder_y_Distance2/2+Offset_Y_2,-0.01]) DeviceHolder("Khaki",ScrewCylinderHeight2,ScrewCylinderDiameter2,ScrewHoleDiameter2);
-                    translate([-DeviceHolder_X_Distance2/2+Offset_X_2, DeviceHolder_y_Distance2/2+Offset_Y_2,-0.01]) DeviceHolder("Khaki",ScrewCylinderHeight2,ScrewCylinderDiameter2,ScrewHoleDiameter2);
-                }
-                if (ShowDeviceHolder3)
-                {
-                    translate([ DeviceHolder_X_Distance3/2+Offset_X_3, DeviceHolder_y_Distance3/2+Offset_Y_3,-0.01]) DeviceHolder("PaleGreen",ScrewCylinderHeight3,ScrewCylinderDiameter3,ScrewHoleDiameter3);
-                    translate([-DeviceHolder_X_Distance3/2+Offset_X_3,-DeviceHolder_y_Distance3/2+Offset_Y_3,-0.01]) DeviceHolder("PaleGreen",ScrewCylinderHeight3,ScrewCylinderDiameter3,ScrewHoleDiameter3);
-                    translate([ DeviceHolder_X_Distance3/2+Offset_X_3,-DeviceHolder_y_Distance3/2+Offset_Y_3,-0.01]) DeviceHolder("PaleGreen",ScrewCylinderHeight3,ScrewCylinderDiameter3,ScrewHoleDiameter3);
-                    translate([-DeviceHolder_X_Distance3/2+Offset_X_3, DeviceHolder_y_Distance3/2+Offset_Y_3,-0.01]) DeviceHolder("PaleGreen",ScrewCylinderHeight3,ScrewCylinderDiameter3,ScrewHoleDiameter3);
-                }
+                PlaceDeviceHolders(ShowDeviceHolder1, DeviceHolder_X_Distance1, DeviceHolder_y_Distance1, Offset_X_1, Offset_Y_1, "LightSalmon", ScrewCylinderHeight1, ScrewCylinderDiameter1, ScrewHoleDiameter1);
+                PlaceDeviceHolders(ShowDeviceHolder2, DeviceHolder_X_Distance2, DeviceHolder_y_Distance2, Offset_X_2, Offset_Y_2, "Khaki",       ScrewCylinderHeight2, ScrewCylinderDiameter2, ScrewHoleDiameter2);
+                PlaceDeviceHolders(ShowDeviceHolder3, DeviceHolder_X_Distance3, DeviceHolder_y_Distance3, Offset_X_3, Offset_Y_3, "PaleGreen",   ScrewCylinderHeight3, ScrewCylinderDiameter3, ScrewHoleDiameter3);
             }
 
             // Add here cut outs
@@ -849,7 +831,14 @@ module DeviceHolder (Col,CylHeight,CylDia,HoleDia) {
         cylinder(h=CylHeight,d=CylDia,center = true);
         translate([0,0,0]) cylinder(h=CylHeight+0.05,d=HoleDia,center = true);
     }
+}
 
+// Places four DeviceHolder posts at ±dx/2+ox, ±dy/2+oy (all four sign combinations).
+module PlaceDeviceHolders(show, dx, dy, ox, oy, col, height, dia, hole_dia) {
+    if (show)
+        for (sx = [-1, 1], sy = [-1, 1])
+            translate([sx*dx/2+ox, sy*dy/2+oy, -0.01])
+                DeviceHolder(col, height, dia, hole_dia);
 }
 
 module pie(radius, angle, height, spin=0) {
