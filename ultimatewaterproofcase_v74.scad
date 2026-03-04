@@ -537,6 +537,20 @@ module MountHolder (Thick,Hole) {
     }
 }
 
+// Echoes recommended screw length range for the current NutStyle + ScrewHeadType combination.
+// NutStyle controls the bottom engagement depth; ScrewHeadType controls the top offset and label.
+module ShowScrewLengths() {
+    nut_bottom_min = NutStyle == 1 ? HolelengthHotMeltNut :
+                     NutStyle == 2 ? NutSink + NutHigh :
+                                     NutSink + SquareNutHigh;
+    top_offset = ScrewHeadType == 2 ? ScrewHeadHeight : 0;
+    label      = ScrewHeadType == 1 ? "Countersunk" : "Round head or hex";
+    vMin = CutFromTop - top_offset + nut_bottom_min;
+    vMax = CutFromTop - top_offset + HoleDeepness;
+    echo(str(" --> ", label, " Screw m", MetricScrewSize, " max length : ", vMax, "mm"));
+    echo(str(" --> ", label, " Screw m", MetricScrewSize, " min length : ", vMin, "mm"));
+}
+
 module ShowSizes () {
     echo ();
     echo (str(" Stable and waterproof OpenSCAD case by pbtec V7."));
@@ -568,119 +582,7 @@ module ShowSizes () {
     echo (str(" Y : Additional screws (3rd) : ",YAdditionalScrew));
     echo (str(" --> Check if you have screws within the following size : "));
 
-    if(NutStyle ==1)  // Hot melt copper nuts
-    {
-        if (ScrewHeadType == 1 ) // countersunk screws and flat head screws without counter
-        {
-            vTopMin=CutFromTop;
-            vTopMax=CutFromTop;
-            vBottomMin=HolelengthHotMeltNut;
-            vBottomMax=HoleDeepness;
-            vMin=vTopMin+vBottomMin;
-            vMax=vTopMax+vBottomMax;
-            echo (str(" --> Countersunk Screw m",MetricScrewSize , " max length : ",vMax, "mm"));
-            echo (str(" --> Countersunk Screw m",MetricScrewSize , " min length : ",vMin, "mm"));
-        }
-        if (ScrewHeadType== 2)
-        {
-            vTopMin=CutFromTop-ScrewHeadHeight;
-            vTopMax=CutFromTop-ScrewHeadHeight;
-            vBottomMin=HolelengthHotMeltNut;
-            vBottomMax=HoleDeepness;
-            vMin=vTopMin+vBottomMin;
-            vMax=vTopMax+vBottomMax;
-            echo (str(" --> Round head or hex Screw m",MetricScrewSize , " max length : ",vMax, "mm"));
-            echo (str(" --> Round head or hex Screw m",MetricScrewSize , " min length : ",vMin, "mm"));
-        }
-
-        if (ScrewHeadType == 3) // countersunk screws and flat head screws without counter
-        {
-            vTopMin=CutFromTop;
-            vTopMax=CutFromTop;
-            vBottomMin=HolelengthHotMeltNut;
-            vBottomMax=HoleDeepness;
-            vMin=vTopMin+vBottomMin;
-            vMax=vTopMax+vBottomMax;
-            echo (str(" --> Round head or hex Screw m",MetricScrewSize , " max length : ",vMax, "mm"));
-            echo (str(" --> Round head or hex Screw m",MetricScrewSize , " min length : ",vMin, "mm"));
-        }
-    }
-
-    if(NutStyle ==2) // standard nuts and square nuts
-    {
-        if (ScrewHeadType == 1) // countersunk screws and flat head screws without counter
-        {
-            vTopMin=CutFromTop;
-            vTopMax=CutFromTop;
-            vBottomMin=NutSink+NutHigh;
-            vBottomMax=HoleDeepness;
-            vMin=vTopMin+vBottomMin;
-            vMax=vTopMax+vBottomMax;
-            echo (str(" --> Countersunk Screw m",MetricScrewSize , " max length : ",vMax, "mm"));
-            echo (str(" --> Countersunk Screw m",MetricScrewSize , " min length : ",vMin, "mm"));
-        }
-        if (ScrewHeadType== 2)
-        {
-            vTopMin=CutFromTop-ScrewHeadHeight;
-            vTopMax=CutFromTop-ScrewHeadHeight;
-            vBottomMin=NutSink+NutHigh;
-            vBottomMax=HoleDeepness;
-            vMin=vTopMin+vBottomMin;
-            vMax=vTopMax+vBottomMax;
-            echo (str(" --> Round head or hex Screw m",MetricScrewSize , " max length : ",vMax, "mm"));
-            echo (str(" --> Round head or hex Screw m",MetricScrewSize , " min length : ",vMin, "mm"));
-        }
-
-        if (ScrewHeadType == 3) // countersunk screws and flat head screws without counter
-        {
-            vTopMin=CutFromTop;
-            vTopMax=CutFromTop;
-            vBottomMin=NutSink+NutHigh;
-            vBottomMax=HoleDeepness;
-            vMin=vTopMin+vBottomMin;
-            vMax=vTopMax+vBottomMax;
-            echo (str(" --> Round head or hex Screw m",MetricScrewSize , " max length : ",vMax, "mm"));
-            echo (str(" --> Round head or hex Screw m",MetricScrewSize , " min length : ",vMin, "mm"));
-        }
-    }
-
-    if(NutStyle == 3 || NutStyle == 4) // standard nuts and square nuts
-    {
-        if (ScrewHeadType == 1) // countersunk screws and flat head screws without counter
-        {
-            vTopMin=CutFromTop;
-            vTopMax=CutFromTop;
-            vBottomMin=NutSink+SquareNutHigh;
-            vBottomMax=HoleDeepness;
-            vMin=vTopMin+vBottomMin;
-            vMax=vTopMax+vBottomMax;
-            echo (str(" --> Countersunk Screw m",MetricScrewSize , " max length : ",vMax, "mm"));
-            echo (str(" --> Countersunk Screw m",MetricScrewSize , " min length : ",vMin, "mm"));
-        }
-        if (ScrewHeadType== 2)
-        {
-            vTopMin=CutFromTop-ScrewHeadHeight;
-            vTopMax=CutFromTop-ScrewHeadHeight;
-            vBottomMin=NutSink+SquareNutHigh;
-            vBottomMax=HoleDeepness;
-            vMin=vTopMin+vBottomMin;
-            vMax=vTopMax+vBottomMax;
-            echo (str(" --> Round head or hex Screw m",MetricScrewSize , " max length : ",vMax, "mm"));
-            echo (str(" --> Round head or hex Screw m",MetricScrewSize , " min length : ",vMin, "mm"));
-        }
-        if (ScrewHeadType == 3) // cflat head screws without counter
-        {
-            vTopMin=CutFromTop;
-            vTopMax=CutFromTop;
-            vBottomMin=NutSink+SquareNutHigh;
-            vBottomMax=HoleDeepness;
-            vMin=vTopMin+vBottomMin;
-            vMax=vTopMax+vBottomMax;
-            echo (str(" --> Round head or hex Screw m",MetricScrewSize , " max length : ",vMax, "mm"));
-            echo (str(" --> Round head or hex Screw m",MetricScrewSize , " min length : ",vMin, "mm"));
-        }
-
-    }
+    ShowScrewLengths();
 }
 
 module GrooveStraight (length) {
