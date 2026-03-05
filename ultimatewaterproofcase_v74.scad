@@ -610,41 +610,83 @@ module Gasket () {
 }
 
 module GasketQuarter () {
-            translate([CaseRoundingRadius+ScrewHoleDia/2-0.01,CaseWidth/2-OuterBorder-GrooveWidth/2-0.01,0])   GasketRidgeStraight(Caselength/2-3*CaseRoundingRadius-ScrewHoleDia+0.03);
-            translate([Caselength/2-OuterBorder-GrooveWidth/2-0.01,CaseRoundingRadius+ScrewHoleDia/2-0.02,0]) translate([0,0,0]) rotate([0,0,90]) GasketRidgeStraight(CaseWidth/2-3*CaseRoundingRadius-ScrewHoleDia+0.04);
+            if (XAdditionalScrew == 0)
+                translate([CaseRoundingRadius+ScrewHoleDia/2-0.01,CaseWidth/2-OuterBorder-GrooveWidth/2-0.01,0])   GasketRidgeStraight(Caselength/2-3*CaseRoundingRadius-ScrewHoleDia+0.03);
+            if (YAdditionalScrew == 0)
+                translate([Caselength/2-OuterBorder-GrooveWidth/2-0.01,CaseRoundingRadius+ScrewHoleDia/2-0.02,0]) translate([0,0,0]) rotate([0,0,90]) GasketRidgeStraight(CaseWidth/2-3*CaseRoundingRadius-ScrewHoleDia+0.04);
             translate(ScrewCornerPos) rotate([0,0,180]) GasketRidgeCurved(90,ScrewHoleDia/2+OuterBorder+GrooveWidth/2);
             translate([-ScrewHoleDia-SideWallThickness+0.02,-0.01,0]) translate(ScrewCornerPos)GasketRidgeCurved(90,ScrewHoleDia/2+InnerBorder+GrooveWidth/2);
             translate([-0.01,-ScrewHoleDia-SideWallThickness+0.00,0]) translate(ScrewCornerPos)GasketRidgeCurved(90,ScrewHoleDia/2+InnerBorder+GrooveWidth/2);
-            for (i = [1 : max(1, XAdditionalScrew)]) if (XAdditionalScrew > 0) {
-                x_i    = (i   - (XAdditionalScrew+1)/2) * (Caselength-4*CaseRoundingRadius) / (XAdditionalScrew+1);
-                x_prev = (i-1 - (XAdditionalScrew+1)/2) * (Caselength-4*CaseRoundingRadius) / (XAdditionalScrew+1);
-                if (x_i >= 0) {
-                    left_start = (x_prev >= 0) ? x_prev+(ScrewHoleDia+SideWallThickness) : -0.01;
-                    fill_len   = x_i-(ScrewHoleDia+SideWallThickness)-left_start+0.04;
-                    if (fill_len > 0)
-                        translate([left_start, CaseWidth/2-OuterBorder-GrooveWidth/2-0.01, 0])
-                            GasketRidgeStraight(fill_len);
-                    translate([x_i,                                        CaseWidth/2-CaseRoundingRadius,      0]) rotate([0,0,180]) GasketRidgeCurved(180, ScrewHoleDia/2+OuterBorder+GrooveWidth/2);
-                    translate([x_i-(ScrewHoleDia+SideWallThickness)+0.04,  CaseWidth/2-CaseRoundingRadius-0.01, 0]) rotate([0,0,  0]) GasketRidgeCurved(90,  ScrewHoleDia/2+InnerBorder+GrooveWidth/2);
-                    translate([x_i+(ScrewHoleDia+SideWallThickness),        CaseWidth/2-CaseRoundingRadius-0.01, 0]) rotate([0,0, 90]) GasketRidgeCurved(90,  ScrewHoleDia/2+InnerBorder+GrooveWidth/2);
+            if (XAdditionalScrew > 0) {
+                x_first = (ceil((XAdditionalScrew+1)/2) - (XAdditionalScrew+1)/2) * (Caselength-4*CaseRoundingRadius) / (XAdditionalScrew+1);
+                x_last  = (XAdditionalScrew - (XAdditionalScrew+1)/2) * (Caselength-4*CaseRoundingRadius) / (XAdditionalScrew+1);
+                // Straight section from corner to first screw
+                fill_len_first = x_first-(ScrewHoleDia+SideWallThickness)+0.04;
+                if (fill_len_first > 0)
+                    translate([-0.01, CaseWidth/2-OuterBorder-GrooveWidth/2-0.01, 0])
+                        GasketRidgeStraight(fill_len_first);
+                // Screws and sections between them
+                for (i = [1 : max(1, XAdditionalScrew)]) {
+                    x_i    = (i   - (XAdditionalScrew+1)/2) * (Caselength-4*CaseRoundingRadius) / (XAdditionalScrew+1);
+                    x_prev = (i-1 - (XAdditionalScrew+1)/2) * (Caselength-4*CaseRoundingRadius) / (XAdditionalScrew+1);
+                    if (x_i >= 0) {
+                        // Straight section between screws
+                        if (x_prev >= 0) {
+                            left_start = x_prev+(ScrewHoleDia+SideWallThickness);
+                            fill_len   = x_i-(ScrewHoleDia+SideWallThickness)-left_start+0.04;
+                            if (fill_len > 0)
+                                translate([left_start, CaseWidth/2-OuterBorder-GrooveWidth/2-0.01, 0])
+                                    GasketRidgeStraight(fill_len);
+                        }
+                        // Curves around screw
+                        translate([x_i-(ScrewHoleDia+SideWallThickness)+0.04,  CaseWidth/2-CaseRoundingRadius-0.01, 0]) rotate([0,0,  0]) GasketRidgeCurved(90,  ScrewHoleDia/2+InnerBorder+GrooveWidth/2);
+                        translate([x_i,  CaseWidth/2-CaseRoundingRadius-0.01, 0]) rotate([0,0,180]) GasketRidgeCurved(180,  ScrewHoleDia/2+InnerBorder+GrooveWidth/2);
+                        translate([x_i+(ScrewHoleDia+SideWallThickness),        CaseWidth/2-CaseRoundingRadius-0.01, 0]) rotate([0,0, 90]) GasketRidgeCurved(90,  ScrewHoleDia/2+InnerBorder+GrooveWidth/2);
+                    }
                 }
+                // Straight section from last screw to corner
+                left_start_last = x_last+(ScrewHoleDia+SideWallThickness);
+                fill_len_last = Caselength/2-2*CaseRoundingRadius-ScrewHoleDia/2-left_start_last+0.05;
+                if (fill_len_last > 0)
+                    translate([left_start_last, CaseWidth/2-OuterBorder-GrooveWidth/2-0.01, 0])
+                        GasketRidgeStraight(fill_len_last);
             }
             if (XAdditionalScrew == 0)
                 translate([-0.01, CaseWidth/2-OuterBorder-GrooveWidth/2-0.01, 0])
                     GasketRidgeStraight(Caselength/2-2*CaseRoundingRadius-ScrewHoleDia/2+0.05);
-            for (i = [1 : max(1, YAdditionalScrew)]) if (YAdditionalScrew > 0) {
-                y_i    = (i   - (YAdditionalScrew+1)/2) * (CaseWidth-4*CaseRoundingRadius) / (YAdditionalScrew+1);
-                y_prev = (i-1 - (YAdditionalScrew+1)/2) * (CaseWidth-4*CaseRoundingRadius) / (YAdditionalScrew+1);
-                if (y_i >= 0) {
-                    left_start = (y_prev >= 0) ? y_prev+(ScrewHoleDia+SideWallThickness) : -0.01;
-                    fill_len   = y_i-(ScrewHoleDia+SideWallThickness)-left_start+0.04;
-                    if (fill_len > 0)
-                        translate([Caselength/2-OuterBorder-GrooveWidth/2-0.01, left_start, 0])
-                            rotate([0,0,90]) GasketRidgeStraight(fill_len);
-                    translate([Caselength/2-CaseRoundingRadius,      y_i,                                       0]) rotate([0,0, 90]) GasketRidgeCurved(180, ScrewHoleDia/2+OuterBorder+GrooveWidth/2);
-                    translate([Caselength/2-CaseRoundingRadius-0.01, y_i-(ScrewHoleDia+SideWallThickness)-0.01, 0]) rotate([0,0,  0]) GasketRidgeCurved(90,  ScrewHoleDia/2+InnerBorder+GrooveWidth/2);
-                    translate([Caselength/2-CaseRoundingRadius-0.01, y_i+(ScrewHoleDia+SideWallThickness)-0.01, 0]) rotate([0,0,270]) GasketRidgeCurved(90,  ScrewHoleDia/2+InnerBorder+GrooveWidth/2);
+            if (YAdditionalScrew > 0) {
+                y_first = (ceil((YAdditionalScrew+1)/2) - (YAdditionalScrew+1)/2) * (CaseWidth-4*CaseRoundingRadius) / (YAdditionalScrew+1);
+                y_last  = (YAdditionalScrew - (YAdditionalScrew+1)/2) * (CaseWidth-4*CaseRoundingRadius) / (YAdditionalScrew+1);
+                // Straight section from corner to first screw
+                fill_len_first = y_first-(ScrewHoleDia+SideWallThickness)+0.04;
+                if (fill_len_first > 0)
+                    translate([Caselength/2-OuterBorder-GrooveWidth/2-0.01, -0.01, 0])
+                        rotate([0,0,90]) GasketRidgeStraight(fill_len_first);
+                // Screws and sections between them
+                for (i = [1 : max(1, YAdditionalScrew)]) {
+                    y_i    = (i   - (YAdditionalScrew+1)/2) * (CaseWidth-4*CaseRoundingRadius) / (YAdditionalScrew+1);
+                    y_prev = (i-1 - (YAdditionalScrew+1)/2) * (CaseWidth-4*CaseRoundingRadius) / (YAdditionalScrew+1);
+                    if (y_i >= 0) {
+                        // Straight section between screws
+                        if (y_prev >= 0) {
+                            left_start = y_prev+(ScrewHoleDia+SideWallThickness);
+                            fill_len   = y_i-(ScrewHoleDia+SideWallThickness)-left_start+0.04;
+                            if (fill_len > 0)
+                                translate([Caselength/2-OuterBorder-GrooveWidth/2-0.01, left_start, 0])
+                                    rotate([0,0,90]) GasketRidgeStraight(fill_len);
+                        }
+                        // Curves around screw
+                        translate([Caselength/2-CaseRoundingRadius-0.01, y_i-(ScrewHoleDia+SideWallThickness)-0.01, 0]) rotate([0,0,  0]) GasketRidgeCurved(90,  ScrewHoleDia/2+InnerBorder+GrooveWidth/2);
+                        translate([Caselength/2-CaseRoundingRadius-0.01, y_i, 0]) rotate([0,0,90]) GasketRidgeCurved(180,  ScrewHoleDia/2+InnerBorder+GrooveWidth/2);
+                        translate([Caselength/2-CaseRoundingRadius-0.01, y_i+(ScrewHoleDia+SideWallThickness)-0.01, 0]) rotate([0,0,270]) GasketRidgeCurved(90,  ScrewHoleDia/2+InnerBorder+GrooveWidth/2);
+                    }
                 }
+                // Straight section from last screw to corner
+                left_start_last = y_last+(ScrewHoleDia+SideWallThickness);
+                fill_len_last = CaseWidth/2-2*CaseRoundingRadius-ScrewHoleDia/2-left_start_last+0.05;
+                if (fill_len_last > 0)
+                    translate([Caselength/2-OuterBorder-GrooveWidth/2-0.01, left_start_last, 0])
+                        rotate([0,0,90]) GasketRidgeStraight(fill_len_last);
             }
             if (YAdditionalScrew == 0)
                 translate([Caselength/2-OuterBorder-GrooveWidth/2-0.01, -0.01, 0])
@@ -726,41 +768,83 @@ module SideWallHoleSet(show, count, dia, offset_z, distance, position, wall_xy, 
 module BodyQuarterBottom (Caselength,CaseWidth,BodyHeight,CaseRoundingRadius,SideWallThickness) {
     color("SteelBlue")BodyQuarter(Caselength,CaseWidth,BodyHeight,CaseRoundingRadius,SideWallThickness);
 
-    translate([CaseRoundingRadius+ScrewHoleDia/2-0.01,CaseWidth/2-OuterBorder-GrooveWidth/2-0.01,BodyHeight+0.01])  translate([0,0,0]) rotate([0,0,0])  RidgeStraight(Caselength/2-3*CaseRoundingRadius-ScrewHoleDia+0.03);
-    translate([Caselength/2-OuterBorder-GrooveWidth/2-0.01,CaseRoundingRadius+ScrewHoleDia/2-0.02,BodyHeight+0.01]) translate([0,0,0]) rotate([0,0,90]) RidgeStraight(CaseWidth/2-3*CaseRoundingRadius-ScrewHoleDia+0.04);
+    if (XAdditionalScrew == 0)
+        translate([CaseRoundingRadius+ScrewHoleDia/2-0.01,CaseWidth/2-OuterBorder-GrooveWidth/2-0.01,BodyHeight+0.01])  translate([0,0,0]) rotate([0,0,0])  RidgeStraight(Caselength/2-3*CaseRoundingRadius-ScrewHoleDia+0.03);
+    if (YAdditionalScrew == 0)
+        translate([Caselength/2-OuterBorder-GrooveWidth/2-0.01,CaseRoundingRadius+ScrewHoleDia/2-0.02,BodyHeight+0.01]) translate([0,0,0]) rotate([0,0,90]) RidgeStraight(CaseWidth/2-3*CaseRoundingRadius-ScrewHoleDia+0.04);
     translate([0,0,BodyHeight+0.01]) translate(ScrewCornerPos) rotate([0,0,180]) RidgeCurved(90,ScrewHoleDia/2+OuterBorder+GrooveWidth/2);
     translate([-ScrewHoleDia-SideWallThickness+0.02,-0.01,BodyHeight+0.01]) translate(ScrewCornerPos) rotate([0,0,0]) RidgeCurved(90,ScrewHoleDia/2+InnerBorder+GrooveWidth/2);
     translate([-0.01,-ScrewHoleDia-SideWallThickness+0.00,BodyHeight+0.01]) translate(ScrewCornerPos) rotate([0,0,0]) RidgeCurved(90,ScrewHoleDia/2+InnerBorder+GrooveWidth/2);
-    for (i = [1 : max(1, XAdditionalScrew)]) if (XAdditionalScrew > 0) {
-        x_i    = (i   - (XAdditionalScrew+1)/2) * (Caselength-4*CaseRoundingRadius) / (XAdditionalScrew+1);
-        x_prev = (i-1 - (XAdditionalScrew+1)/2) * (Caselength-4*CaseRoundingRadius) / (XAdditionalScrew+1);
-        if (x_i >= 0) {
-            left_start = (x_prev >= 0) ? x_prev+(ScrewHoleDia+SideWallThickness) : -0.01;
-            fill_len   = x_i-(ScrewHoleDia+SideWallThickness)-left_start+0.04;
-            if (fill_len > 0)
-                translate([left_start, CaseWidth/2-OuterBorder-GrooveWidth/2-0.01, BodyHeight+0.01])
-                    RidgeStraight(fill_len);
-            translate([x_i,                                        CaseWidth/2-CaseRoundingRadius,      BodyHeight+0.01]) rotate([0,0,180]) RidgeCurved(180, ScrewHoleDia/2+OuterBorder+GrooveWidth/2);
-            translate([x_i-(ScrewHoleDia+SideWallThickness)+0.04,  CaseWidth/2-CaseRoundingRadius-0.01, BodyHeight+0.01]) rotate([0,0,  0]) RidgeCurved(90,  ScrewHoleDia/2+InnerBorder+GrooveWidth/2);
-            translate([x_i+(ScrewHoleDia+SideWallThickness),        CaseWidth/2-CaseRoundingRadius-0.01, BodyHeight+0.01]) rotate([0,0, 90]) RidgeCurved(90,  ScrewHoleDia/2+InnerBorder+GrooveWidth/2);
+    if (XAdditionalScrew > 0) {
+        x_first = (ceil((XAdditionalScrew+1)/2) - (XAdditionalScrew+1)/2) * (Caselength-4*CaseRoundingRadius) / (XAdditionalScrew+1);
+        x_last  = (XAdditionalScrew - (XAdditionalScrew+1)/2) * (Caselength-4*CaseRoundingRadius) / (XAdditionalScrew+1);
+        // Straight section from corner to first screw
+        fill_len_first = x_first-(ScrewHoleDia+SideWallThickness)+0.04;
+        if (fill_len_first > 0)
+            translate([-0.01, CaseWidth/2-OuterBorder-GrooveWidth/2-0.01, BodyHeight+0.01])
+                RidgeStraight(fill_len_first);
+        // Screws and sections between them
+        for (i = [1 : max(1, XAdditionalScrew)]) {
+            x_i    = (i   - (XAdditionalScrew+1)/2) * (Caselength-4*CaseRoundingRadius) / (XAdditionalScrew+1);
+            x_prev = (i-1 - (XAdditionalScrew+1)/2) * (Caselength-4*CaseRoundingRadius) / (XAdditionalScrew+1);
+            if (x_i >= 0) {
+                // Straight section between screws
+                if (x_prev >= 0) {
+                    left_start = x_prev+(ScrewHoleDia+SideWallThickness);
+                    fill_len   = x_i-(ScrewHoleDia+SideWallThickness)-left_start+0.04;
+                    if (fill_len > 0)
+                        translate([left_start, CaseWidth/2-OuterBorder-GrooveWidth/2-0.01, BodyHeight+0.01])
+                            RidgeStraight(fill_len);
+                }
+                // Curves around screw
+                translate([x_i-(ScrewHoleDia+SideWallThickness)+0.04,  CaseWidth/2-CaseRoundingRadius-0.01, BodyHeight+0.01]) rotate([0,0,  0]) RidgeCurved(90,  ScrewHoleDia/2+InnerBorder+GrooveWidth/2);
+                translate([x_i,  CaseWidth/2-CaseRoundingRadius-0.01, BodyHeight+0.01]) rotate([0,0,180]) RidgeCurved(180,  ScrewHoleDia/2+InnerBorder+GrooveWidth/2);
+                translate([x_i+(ScrewHoleDia+SideWallThickness),        CaseWidth/2-CaseRoundingRadius-0.01, BodyHeight+0.01]) rotate([0,0, 90]) RidgeCurved(90,  ScrewHoleDia/2+InnerBorder+GrooveWidth/2);
+            }
         }
+        // Straight section from last screw to corner
+        left_start_last = x_last+(ScrewHoleDia+SideWallThickness);
+        fill_len_last = Caselength/2-2*CaseRoundingRadius-ScrewHoleDia/2-left_start_last+0.05;
+        if (fill_len_last > 0)
+            translate([left_start_last, CaseWidth/2-OuterBorder-GrooveWidth/2-0.01, BodyHeight+0.01])
+                RidgeStraight(fill_len_last);
     }
     if (XAdditionalScrew == 0)
         translate([-0.01, CaseWidth/2-OuterBorder-GrooveWidth/2-0.01, BodyHeight+0.01])
             RidgeStraight(Caselength/2-2*CaseRoundingRadius-ScrewHoleDia/2+0.05);
-    for (i = [1 : max(1, YAdditionalScrew)]) if (YAdditionalScrew > 0) {
-        y_i    = (i   - (YAdditionalScrew+1)/2) * (CaseWidth-4*CaseRoundingRadius) / (YAdditionalScrew+1);
-        y_prev = (i-1 - (YAdditionalScrew+1)/2) * (CaseWidth-4*CaseRoundingRadius) / (YAdditionalScrew+1);
-        if (y_i >= 0) {
-            left_start = (y_prev >= 0) ? y_prev+(ScrewHoleDia+SideWallThickness) : -0.01;
-            fill_len   = y_i-(ScrewHoleDia+SideWallThickness)-left_start+0.04;
-            if (fill_len > 0)
-                translate([Caselength/2-OuterBorder-GrooveWidth/2-0.01, left_start, BodyHeight+0.01])
-                    rotate([0,0,90]) RidgeStraight(fill_len);
-            translate([Caselength/2-CaseRoundingRadius,      y_i,                                       BodyHeight+0.01]) rotate([0,0, 90]) RidgeCurved(180, ScrewHoleDia/2+OuterBorder+GrooveWidth/2);
-            translate([Caselength/2-CaseRoundingRadius-0.01, y_i-(ScrewHoleDia+SideWallThickness)-0.01, BodyHeight+0.01]) rotate([0,0,  0]) RidgeCurved(90,  ScrewHoleDia/2+InnerBorder+GrooveWidth/2);
-            translate([Caselength/2-CaseRoundingRadius-0.01, y_i+(ScrewHoleDia+SideWallThickness)-0.01, BodyHeight+0.01]) rotate([0,0,270]) RidgeCurved(90,  ScrewHoleDia/2+InnerBorder+GrooveWidth/2);
+    if (YAdditionalScrew > 0) {
+        y_first = (ceil((YAdditionalScrew+1)/2) - (YAdditionalScrew+1)/2) * (CaseWidth-4*CaseRoundingRadius) / (YAdditionalScrew+1);
+        y_last  = (YAdditionalScrew - (YAdditionalScrew+1)/2) * (CaseWidth-4*CaseRoundingRadius) / (YAdditionalScrew+1);
+        // Straight section from corner to first screw
+        fill_len_first = y_first-(ScrewHoleDia+SideWallThickness)+0.04;
+        if (fill_len_first > 0)
+            translate([Caselength/2-OuterBorder-GrooveWidth/2-0.01, -0.01, BodyHeight+0.01])
+                rotate([0,0,90]) RidgeStraight(fill_len_first);
+        // Screws and sections between them
+        for (i = [1 : max(1, YAdditionalScrew)]) {
+            y_i    = (i   - (YAdditionalScrew+1)/2) * (CaseWidth-4*CaseRoundingRadius) / (YAdditionalScrew+1);
+            y_prev = (i-1 - (YAdditionalScrew+1)/2) * (CaseWidth-4*CaseRoundingRadius) / (YAdditionalScrew+1);
+            if (y_i >= 0) {
+                // Straight section between screws
+                if (y_prev >= 0) {
+                    left_start = y_prev+(ScrewHoleDia+SideWallThickness);
+                    fill_len   = y_i-(ScrewHoleDia+SideWallThickness)-left_start+0.04;
+                    if (fill_len > 0)
+                        translate([Caselength/2-OuterBorder-GrooveWidth/2-0.01, left_start, BodyHeight+0.01])
+                            rotate([0,0,90]) RidgeStraight(fill_len);
+                }
+                // Curves around screw
+                translate([Caselength/2-CaseRoundingRadius-0.01, y_i-(ScrewHoleDia+SideWallThickness)-0.01, BodyHeight+0.01]) rotate([0,0,  0]) RidgeCurved(90,  ScrewHoleDia/2+InnerBorder+GrooveWidth/2);
+                translate([Caselength/2-CaseRoundingRadius-0.01, y_i, BodyHeight+0.01]) rotate([0,0,90]) RidgeCurved(180,  ScrewHoleDia/2+InnerBorder+GrooveWidth/2);
+                translate([Caselength/2-CaseRoundingRadius-0.01, y_i+(ScrewHoleDia+SideWallThickness)-0.01, BodyHeight+0.01]) rotate([0,0,270]) RidgeCurved(90,  ScrewHoleDia/2+InnerBorder+GrooveWidth/2);
+            }
         }
+        // Straight section from last screw to corner
+        left_start_last = y_last+(ScrewHoleDia+SideWallThickness);
+        fill_len_last = CaseWidth/2-2*CaseRoundingRadius-ScrewHoleDia/2-left_start_last+0.05;
+        if (fill_len_last > 0)
+            translate([Caselength/2-OuterBorder-GrooveWidth/2-0.01, left_start_last, BodyHeight+0.01])
+                rotate([0,0,90]) RidgeStraight(fill_len_last);
     }
     if (YAdditionalScrew == 0)
         translate([Caselength/2-OuterBorder-GrooveWidth/2-0.01, -0.01, BodyHeight+0.01])
@@ -774,41 +858,83 @@ module BodyQuarterTop (Caselength,CaseWidth,CutFromTop,CaseRoundingRadius,SideWa
         union(){
             color("DarkCyan")BodyQuarter(Caselength,CaseWidth,CutFromTop,CaseRoundingRadius,SideWallThickness);
         }
-        translate([CaseRoundingRadius+ScrewHoleDia/2-0.01,CaseWidth/2-OuterBorder-GrooveWidth/2-0.01,CutFromTop+0.01])  translate([0,0,0]) rotate([0,0,0]) GrooveStraight(Caselength/2-3*CaseRoundingRadius-ScrewHoleDia+0.03);
-        translate([Caselength/2-OuterBorder-GrooveWidth/2-0.01,CaseRoundingRadius+ScrewHoleDia/2-0.02,CutFromTop+0.01])  translate([0,0,0]) rotate([0,0,90]) GrooveStraight(CaseWidth/2-3*CaseRoundingRadius-ScrewHoleDia+0.04);
+        if (XAdditionalScrew == 0)
+            translate([CaseRoundingRadius+ScrewHoleDia/2-0.01,CaseWidth/2-OuterBorder-GrooveWidth/2-0.01,CutFromTop+0.01])  translate([0,0,0]) rotate([0,0,0]) GrooveStraight(Caselength/2-3*CaseRoundingRadius-ScrewHoleDia+0.03);
+        if (YAdditionalScrew == 0)
+            translate([Caselength/2-OuterBorder-GrooveWidth/2-0.01,CaseRoundingRadius+ScrewHoleDia/2-0.02,CutFromTop+0.01])  translate([0,0,0]) rotate([0,0,90]) GrooveStraight(CaseWidth/2-3*CaseRoundingRadius-ScrewHoleDia+0.04);
         translate([0,0,CutFromTop+0.01]) translate(ScrewCornerPos) rotate([0,0,180]) GrooveCurved(90,ScrewHoleDia/2+OuterBorder+GrooveWidth/2);
         translate([-ScrewHoleDia-SideWallThickness+0.02,-0.01,CutFromTop+0.01]) translate(ScrewCornerPos) rotate([0,0,0]) GrooveCurved(90,ScrewHoleDia/2+InnerBorder+GrooveWidth/2);
         translate([-0.01,-ScrewHoleDia-SideWallThickness+0.0,CutFromTop+0.01]) translate(ScrewCornerPos) rotate([0,0,0]) GrooveCurved(90,ScrewHoleDia/2+InnerBorder+GrooveWidth/2);
-        for (i = [1 : max(1, XAdditionalScrew)]) if (XAdditionalScrew > 0) {
-            x_i    = (i   - (XAdditionalScrew+1)/2) * (Caselength-4*CaseRoundingRadius) / (XAdditionalScrew+1);
-            x_prev = (i-1 - (XAdditionalScrew+1)/2) * (Caselength-4*CaseRoundingRadius) / (XAdditionalScrew+1);
-            if (x_i >= 0) {
-                left_start = (x_prev >= 0) ? x_prev+(ScrewHoleDia+SideWallThickness) : -0.01;
-                fill_len   = x_i-(ScrewHoleDia+SideWallThickness)-left_start+0.04;
-                if (fill_len > 0)
-                    translate([left_start, CaseWidth/2-OuterBorder-GrooveWidth/2-0.01, CutFromTop+0.01])
-                        GrooveStraight(fill_len);
-                translate([x_i,                                        CaseWidth/2-CaseRoundingRadius,      CutFromTop+0.01]) rotate([0,0,180]) GrooveCurved(180, ScrewHoleDia/2+OuterBorder+GrooveWidth/2);
-                translate([x_i-(ScrewHoleDia+SideWallThickness)+0.04,  CaseWidth/2-CaseRoundingRadius-0.01, CutFromTop+0.01]) rotate([0,0,  0]) GrooveCurved(90,  ScrewHoleDia/2+InnerBorder+GrooveWidth/2);
-                translate([x_i+(ScrewHoleDia+SideWallThickness),        CaseWidth/2-CaseRoundingRadius-0.01, CutFromTop+0.01]) rotate([0,0, 90]) GrooveCurved(90,  ScrewHoleDia/2+InnerBorder+GrooveWidth/2);
+        if (XAdditionalScrew > 0) {
+            x_first = (ceil((XAdditionalScrew+1)/2) - (XAdditionalScrew+1)/2) * (Caselength-4*CaseRoundingRadius) / (XAdditionalScrew+1);
+            x_last  = (XAdditionalScrew - (XAdditionalScrew+1)/2) * (Caselength-4*CaseRoundingRadius) / (XAdditionalScrew+1);
+            // Straight section from corner to first screw
+            fill_len_first = x_first-(ScrewHoleDia+SideWallThickness)+0.04;
+            if (fill_len_first > 0)
+                translate([-0.01, CaseWidth/2-OuterBorder-GrooveWidth/2-0.01, CutFromTop+0.01])
+                    GrooveStraight(fill_len_first);
+            // Screws and sections between them
+            for (i = [1 : max(1, XAdditionalScrew)]) {
+                x_i    = (i   - (XAdditionalScrew+1)/2) * (Caselength-4*CaseRoundingRadius) / (XAdditionalScrew+1);
+                x_prev = (i-1 - (XAdditionalScrew+1)/2) * (Caselength-4*CaseRoundingRadius) / (XAdditionalScrew+1);
+                if (x_i >= 0) {
+                    // Straight section between screws
+                    if (x_prev >= 0) {
+                        left_start = x_prev+(ScrewHoleDia+SideWallThickness);
+                        fill_len   = x_i-(ScrewHoleDia+SideWallThickness)-left_start+0.04;
+                        if (fill_len > 0)
+                            translate([left_start, CaseWidth/2-OuterBorder-GrooveWidth/2-0.01, CutFromTop+0.01])
+                                GrooveStraight(fill_len);
+                    }
+                    // Curves around screw
+                    translate([x_i-(ScrewHoleDia+SideWallThickness)+0.04,  CaseWidth/2-CaseRoundingRadius-0.01, CutFromTop+0.01]) rotate([0,0,  0]) GrooveCurved(90,  ScrewHoleDia/2+InnerBorder+GrooveWidth/2);
+                    translate([x_i,  CaseWidth/2-CaseRoundingRadius-0.01, CutFromTop+0.01]) rotate([0,0,180]) GrooveCurved(180,  ScrewHoleDia/2+InnerBorder+GrooveWidth/2);
+                    translate([x_i+(ScrewHoleDia+SideWallThickness),        CaseWidth/2-CaseRoundingRadius-0.01, CutFromTop+0.01]) rotate([0,0, 90]) GrooveCurved(90,  ScrewHoleDia/2+InnerBorder+GrooveWidth/2);
+                }
             }
+            // Straight section from last screw to corner
+            left_start_last = x_last+(ScrewHoleDia+SideWallThickness);
+            fill_len_last = Caselength/2-2*CaseRoundingRadius-ScrewHoleDia/2-left_start_last+0.07;
+            if (fill_len_last > 0)
+                translate([left_start_last, CaseWidth/2-OuterBorder-GrooveWidth/2-0.01, CutFromTop+0.01])
+                    GrooveStraight(fill_len_last);
         }
         if (XAdditionalScrew == 0)
             translate([-0.01, CaseWidth/2-OuterBorder-GrooveWidth/2-0.01, CutFromTop+0.01])
                 GrooveStraight(Caselength/2-2*CaseRoundingRadius-ScrewHoleDia/2+0.07);
-        for (i = [1 : max(1, YAdditionalScrew)]) if (YAdditionalScrew > 0) {
-            y_i    = (i   - (YAdditionalScrew+1)/2) * (CaseWidth-4*CaseRoundingRadius) / (YAdditionalScrew+1);
-            y_prev = (i-1 - (YAdditionalScrew+1)/2) * (CaseWidth-4*CaseRoundingRadius) / (YAdditionalScrew+1);
-            if (y_i >= 0) {
-                left_start = (y_prev >= 0) ? y_prev+(ScrewHoleDia+SideWallThickness) : -0.01;
-                fill_len   = y_i-(ScrewHoleDia+SideWallThickness)-left_start+0.04;
-                if (fill_len > 0)
-                    translate([Caselength/2-OuterBorder-GrooveWidth/2-0.01, left_start, CutFromTop+0.01])
-                        rotate([0,0,90]) GrooveStraight(fill_len);
-                translate([Caselength/2-CaseRoundingRadius,      y_i,                                       CutFromTop+0.01]) rotate([0,0, 90]) GrooveCurved(180, ScrewHoleDia/2+OuterBorder+GrooveWidth/2);
-                translate([Caselength/2-CaseRoundingRadius-0.01, y_i-(ScrewHoleDia+SideWallThickness)-0.01, CutFromTop+0.01]) rotate([0,0,  0]) GrooveCurved(90,  ScrewHoleDia/2+InnerBorder+GrooveWidth/2);
-                translate([Caselength/2-CaseRoundingRadius-0.01, y_i+(ScrewHoleDia+SideWallThickness)-0.01, CutFromTop+0.01]) rotate([0,0,270]) GrooveCurved(90,  ScrewHoleDia/2+InnerBorder+GrooveWidth/2);
+        if (YAdditionalScrew > 0) {
+            y_first = (ceil((YAdditionalScrew+1)/2) - (YAdditionalScrew+1)/2) * (CaseWidth-4*CaseRoundingRadius) / (YAdditionalScrew+1);
+            y_last  = (YAdditionalScrew - (YAdditionalScrew+1)/2) * (CaseWidth-4*CaseRoundingRadius) / (YAdditionalScrew+1);
+            // Straight section from corner to first screw
+            fill_len_first = y_first-(ScrewHoleDia+SideWallThickness)+0.04;
+            if (fill_len_first > 0)
+                translate([Caselength/2-OuterBorder-GrooveWidth/2-0.01, -0.01, CutFromTop+0.01])
+                    rotate([0,0,90]) GrooveStraight(fill_len_first);
+            // Screws and sections between them
+            for (i = [1 : max(1, YAdditionalScrew)]) {
+                y_i    = (i   - (YAdditionalScrew+1)/2) * (CaseWidth-4*CaseRoundingRadius) / (YAdditionalScrew+1);
+                y_prev = (i-1 - (YAdditionalScrew+1)/2) * (CaseWidth-4*CaseRoundingRadius) / (YAdditionalScrew+1);
+                if (y_i >= 0) {
+                    // Straight section between screws
+                    if (y_prev >= 0) {
+                        left_start = y_prev+(ScrewHoleDia+SideWallThickness);
+                        fill_len   = y_i-(ScrewHoleDia+SideWallThickness)-left_start+0.04;
+                        if (fill_len > 0)
+                            translate([Caselength/2-OuterBorder-GrooveWidth/2-0.01, left_start, CutFromTop+0.01])
+                                rotate([0,0,90]) GrooveStraight(fill_len);
+                    }
+                    // Curves around screw
+                    translate([Caselength/2-CaseRoundingRadius-0.01, y_i-(ScrewHoleDia+SideWallThickness)-0.01, CutFromTop+0.01]) rotate([0,0,  0]) GrooveCurved(90,  ScrewHoleDia/2+InnerBorder+GrooveWidth/2);
+                    translate([Caselength/2-CaseRoundingRadius-0.01, y_i, CutFromTop+0.01]) rotate([0,0,90]) GrooveCurved(180,  ScrewHoleDia/2+InnerBorder+GrooveWidth/2);
+                    translate([Caselength/2-CaseRoundingRadius-0.01, y_i+(ScrewHoleDia+SideWallThickness)-0.01, CutFromTop+0.01]) rotate([0,0,270]) GrooveCurved(90,  ScrewHoleDia/2+InnerBorder+GrooveWidth/2);
+                }
             }
+            // Straight section from last screw to corner
+            left_start_last = y_last+(ScrewHoleDia+SideWallThickness);
+            fill_len_last = CaseWidth/2-2*CaseRoundingRadius-ScrewHoleDia/2-left_start_last+0.057;
+            if (fill_len_last > 0)
+                translate([Caselength/2-OuterBorder-GrooveWidth/2-0.01, left_start_last, CutFromTop+0.01])
+                    rotate([0,0,90]) GrooveStraight(fill_len_last);
         }
         if (YAdditionalScrew == 0)
             translate([Caselength/2-OuterBorder-GrooveWidth/2-0.01, -0.01, CutFromTop+0.01])
